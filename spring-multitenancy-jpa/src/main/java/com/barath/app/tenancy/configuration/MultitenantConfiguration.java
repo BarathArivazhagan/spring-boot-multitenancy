@@ -13,9 +13,11 @@ import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -28,6 +30,8 @@ import com.barath.app.tenancy.strategy.HeaderTenantIdentificationStrategy;
 import com.barath.app.tenancy.strategy.TenantIdentificationStrategy;
 
 @Configuration
+@ConditionalOnProperty(value="spring.multitenancy.enabled",matchIfMissing=true,havingValue="true")
+@ComponentScan("com.barath.app.tenancy")
 @AutoConfigureAfter(value=HibernateJpaAutoConfiguration.class)
 public class MultitenantConfiguration {
 	
@@ -72,7 +76,6 @@ public class MultitenantConfiguration {
     		CurrentTenantIdentifierResolver  currentTenantResolver) {
         Map<String, Object> properties = new HashMap<>();
         
-        System.out.println("TEST");
         properties.putAll(jpaProperties.getHibernateProperties(dataSource));
         properties.put(Environment.MULTI_TENANT, MultiTenancyStrategy.SCHEMA);
         properties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantProvider);
