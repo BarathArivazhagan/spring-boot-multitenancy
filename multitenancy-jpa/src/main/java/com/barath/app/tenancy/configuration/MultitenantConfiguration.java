@@ -36,7 +36,7 @@ import com.barath.app.tenancy.strategy.HeaderTenantIdentificationStrategy;
 import com.barath.app.tenancy.strategy.TenantIdentificationStrategy;
 
 @Configuration
-@ConditionalOnProperty(value="spring.multitenancy.enabled",matchIfMissing=true,havingValue="true")
+@ConditionalOnProperty(value="multitenancy.enabled",matchIfMissing=true,havingValue="true")
 @ComponentScan("com.barath.app.tenancy")
 @AutoConfigureAfter(value=HibernateJpaAutoConfiguration.class)
 public class MultitenantConfiguration {
@@ -51,8 +51,11 @@ public class MultitenantConfiguration {
 	@Value("${entity.packages:com.barath.app}")
 	private String packagesToScan;
 	
-	@Value("${spring.multitenancy.type:schema}")
+	@Value("${multitenancy.type:schema}")
 	private String tenantType;
+	
+	@Value("${multitenancy.default-tenant:tenant_a}")
+	private String defaultTenant;
 	
 	
 	@Bean
@@ -67,6 +70,7 @@ public class MultitenantConfiguration {
 	public TenancyContextIntegrationFilter tenantFilter(TenantIdentificationStrategy strategy){
 		TenancyContextIntegrationFilter filter= new TenancyContextIntegrationFilter();
 		filter.setTenantIdentificationStrategyChain(Arrays.asList(strategy) );
+		filter.setDefaultTenantIdentifier(defaultTenant);
 		return filter;
 	}
 	
@@ -77,14 +81,14 @@ public class MultitenantConfiguration {
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="spring.multitenancy.type",matchIfMissing=true,havingValue="schema")
+	@ConditionalOnProperty(value="multitenancy.type",matchIfMissing=true,havingValue="schema")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
 	public MultiTenantConnectionProvider schemaMultitenantProvider(){
 		return new SchemaBasedMultitenantConnectionProvider();
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="spring.multitenancy.type",havingValue="schema")
+	@ConditionalOnProperty(value="multitenancy.type",havingValue="schema")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
 	public MultiTenantConnectionProvider databaseMultitenantProvider(){
 		return new DatabaseBasedMultitenantConnectionProvider();

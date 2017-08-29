@@ -9,10 +9,19 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Component;
 
+
+/**
+ * 
+ * @author barath.arivazhagan
+ *
+ */
+
+@ConditionalOnProperty(value="multitenancy.type",havingValue="database")
 @Component
 public class DatasourceMap {
 	

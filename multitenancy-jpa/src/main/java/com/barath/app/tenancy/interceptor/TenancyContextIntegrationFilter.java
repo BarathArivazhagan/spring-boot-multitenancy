@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.barath.app.tenancy.context.TenancyContext;
 import com.barath.app.tenancy.context.TenancyContextHolder;
 import com.barath.app.tenancy.core.Tenant;
+import com.barath.app.tenancy.provider.DefaultTenant;
 import com.barath.app.tenancy.provider.DefaultTenantProvider;
 import com.barath.app.tenancy.provider.TenantProvider;
 import com.barath.app.tenancy.strategy.TenantIdentificationStrategy;
@@ -23,6 +24,7 @@ import org.springframework.web.filter.GenericFilterBean;
  * Responsible for setting and removing the {@link TenancyContext tenancy context} for the scope of every request. This
  * filter should be installed before any components that need access to the {@link TenancyContext tenancy context}.
  * 
+ * @author Clint Morgan
  * @author barath.arivazhagan
  * 
  * @see TenancyContext
@@ -33,6 +35,8 @@ public class TenancyContextIntegrationFilter extends GenericFilterBean {
 	private List<TenantIdentificationStrategy> tenantIdentificationStrategyChain;
 
 	private TenantProvider tenantProvider = new DefaultTenantProvider();
+	
+	private String defaultTenantIdentifier=null;
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
@@ -56,7 +60,8 @@ public class TenancyContextIntegrationFilter extends GenericFilterBean {
 
 	private TenancyContext determineTenancyContext(HttpServletRequest request) {
 		TenancyContext tenancyContext = TenancyContextHolder.createEmptyContext();
-		tenancyContext.setTenant(determineTenant(request));
+		Tenant tenant=determineTenant(request);
+		tenancyContext.setTenant(tenant);
 		return tenancyContext;
 	}
 
@@ -69,13 +74,21 @@ public class TenancyContextIntegrationFilter extends GenericFilterBean {
 	 * @return the tenant context for the given httpRequest. <code>null</code> is a valid return value.
 	 */
 	protected Tenant determineTenant(HttpServletRequest request) {
+		
+		Tenant tenant=null;
 		for (TenantIdentificationStrategy tenantIdentificationStrategy : tenantIdentificationStrategyChain) {
 			String tenantId = tenantIdentificationStrategy.identifyTenant(request);
 			if (tenantId != null) {
-				return tenantProvider.findTenant(tenantId);
+				tenant=tenantProvider.findTenant(tenantId);
 			}
 		}
-		return null;
+		
+		if(tenant == null){
+			DefaultTenant defaultTenant =new DefaultTenant();
+			defaultTenant.setTenantIdentifier(getDefaultTenantIdentifier());
+			tenant=defaultTenant;
+		}
+		return tenant;
 	}
 
 	/**
@@ -91,4 +104,15 @@ public class TenancyContextIntegrationFilter extends GenericFilterBean {
 	public void setTenantProvider(TenantProvider tenantProvider) {
 		this.tenantProvider = tenantProvider;
 	}
+
+	public String getDefaultTenantIdentifier() {
+		return defaultTenantIdentifier;
+	}
+
+	public void setDefaultTenantIdentifier(String defaultTenantIdentifier) {
+		this.defaultTenantIdentifier = defaultTenantIdentifier;
+	}
+	
+	
+	
 }

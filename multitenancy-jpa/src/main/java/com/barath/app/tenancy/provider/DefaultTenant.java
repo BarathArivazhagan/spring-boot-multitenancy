@@ -25,7 +25,8 @@ import com.barath.app.tenancy.core.Tenant;
  * A default implementation of a {@link Tenant}. In addition to the tenant identity, it provides a link to arbitrary
  * data for the tenant.
  * 
- * @author Clint Morgan (Tasktop Technologies Inc.)
+ * @author Clint Morgan
+ * @author barath.arivazhagan
  */
 public class DefaultTenant implements Tenant {
 
@@ -33,10 +34,9 @@ public class DefaultTenant implements Tenant {
 	
 	private String tenantIdentifier;
 	
-	private static final String DEFAULT_TENANT_ID="testdb";
 	
 	public DefaultTenant() {
-		this.tenantIdentifier=DEFAULT_TENANT_ID;
+		
 	}
 
 	@Override
