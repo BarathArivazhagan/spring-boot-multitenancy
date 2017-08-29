@@ -4,8 +4,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.barath.multitenancy.samples</groupId>
-	<artifactId>spring-multitenancy-jpa</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>multitenancy-jpa-sample</artifactId>
+	<version>1.0.0.RELEASE</version>
 	<packaging>jar</packaging>
 
 	<name>spring-multitenancy-jpa</name>
