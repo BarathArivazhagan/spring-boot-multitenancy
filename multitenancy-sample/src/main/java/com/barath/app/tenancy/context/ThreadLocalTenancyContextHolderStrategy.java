@@ -4,6 +4,7 @@ package com.barath.app.tenancy.context;
 
 import org.springframework.util.Assert;
 
+import com.accenture.magellan.tenancy.context.TenancyContext;
 import com.barath.app.tenancy.core.Tenant;
 
 /**
@@ -26,10 +27,12 @@ public class ThreadLocalTenancyContextHolderStrategy implements TenancyContextHo
 		TenancyContext ctx = contextHolder.get();
 
 		if (ctx == null) {
-			ctx = createEmptyContext();
-			contextHolder.set(ctx);
+			ctx = createEmptyContext();			
 		}
-
+		if(ctx.getTenant() == null){
+			ctx = createEmptyContext();		
+		}
+		contextHolder.set(ctx);
 		return ctx;
 	}
 
