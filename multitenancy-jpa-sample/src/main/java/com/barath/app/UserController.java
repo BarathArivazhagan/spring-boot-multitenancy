@@ -22,19 +22,28 @@ public class UserController {
 	
 	
 	@PostMapping("/create")
-	public Optional<User> createUser(@RequestParam String userName){
+	public User createUser(@RequestParam String userName){
 		
-		return Optional.ofNullable(userService.saveUser(new User(userName)));
+		Optional<User> user=Optional.ofNullable(userService.saveUser(new User(userName)));
+		if( user.isPresent()){
+			return user.get();
+		}
+		
+		return null;
+			
 	}
 	
 	@GetMapping("/get")
-	public Optional<User> getUser(@RequestParam String userName){		
+	public User getUser(@RequestParam String userName){		
 		
-			return Optional.ofNullable(userService.getUser(userName));
-		
+		Optional<User> user= Optional.ofNullable(userService.getUser(userName));
+		if( user.isPresent()){
+			return user.get();
+		}
+		return null;
 	}
 	
-	@PostMapping("/getUsers")
+	@GetMapping("/getUsers")
 	public List<User> fetchUsers(){
 		
 		return userService.getUsers();
