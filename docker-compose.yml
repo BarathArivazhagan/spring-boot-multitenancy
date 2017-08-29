@@ -1,9 +1,14 @@
-version: '3'
+version: '2.1'
 services:
   mysql:
    image: mysql-healthcheck
    ports:
       - "3307:3306"
+   healthcheck:
+    test: ["CMD", "docker-health"]
+    interval: 10s
+    timeout: 10s
+    retries: 10
    environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: jpadb
@@ -16,7 +21,7 @@ services:
       - mysql       
     environment: 
       SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3307/jpadb
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/jpadb
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
  
