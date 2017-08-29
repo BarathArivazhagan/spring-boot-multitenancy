@@ -1,0 +1,53 @@
+version: '3'
+services:
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "9000:9000"
+  msstore-microservice:
+    build: ./msstore-microservice
+    ports:
+      - "9002:9002"
+    links: 
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:9000/eureka
+  csstore-microservice:
+    build: ./csstore-microservice
+    ports:
+      - "9001:9001"
+    links: 
+      - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:9000/eureka
+  wsstore-node:
+    build: ./wstore-node-express
+    ports:
+      - "3000:3000"
+    links: 
+      - sidecar
+  zuul-proxy:
+    build: ./zuul-proxy
+    ports:
+      - "9005:9005"
+    depends_on: 
+      - msstore-microservice
+      - csstore-microservice
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:9000/eureka
+      ZUUL_ROUTES_MSSTORE_URL: http://msstore-microservice:9002
+      ZUUL_ROUTES_CSSTORE_URL: http://csstore-microservice:9001
+      ZUUL_ROUTES_WSTORE_URL:  http://wsstore-node:3000
+  sidecar:
+   build: ./sidecar
+   ports:
+      - "9004:9004"
+   links: 
+      - eureka-server  
+   environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:9000/eureka
+      SIDECAR_HEALTH-URI: http://wsstore-node:3000/health
+      ZUUL_ROUTES_WSTORE_URL: http://wsstore-node:3000
+
+
+
