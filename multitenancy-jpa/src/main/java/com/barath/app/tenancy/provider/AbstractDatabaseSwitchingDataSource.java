@@ -1,5 +1,7 @@
 package com.barath.app.tenancy.provider;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,7 +18,7 @@ import javax.sql.DataSource;
 public abstract class AbstractDatabaseSwitchingDataSource {
 	
 	public static enum Language {
-		HSQL("SET SCHEMA ", "'"), MYSQL("USE ", "`"), ORACLE("ALTER SESSION SET CURRENT_SCHEMA=", "\"");
+		HSQL("SET SCHEMA ", ""), MYSQL("USE ", "`"), ORACLE("ALTER SESSION SET CURRENT_SCHEMA=", "\"");
 
 		private final String switchCommand;
 		private final String quoteChar;
@@ -50,7 +52,7 @@ public abstract class AbstractDatabaseSwitchingDataSource {
 		if (databaseName != null) {
 			Statement s = con.createStatement();
 			try {
-				s.execute(language.switchDatabase(tenantId));
+				s.execute(getLanguage(databaseName).switchDatabase(tenantId));
 			} catch (SQLException e) { 
 				con.close();
 				throw e;
@@ -62,6 +64,22 @@ public abstract class AbstractDatabaseSwitchingDataSource {
 	}
 
 	abstract protected String getDatabaseName();
+	
+	
+	protected Language getLanguage(String databaseName){
+		
+		switch(databaseName.toUpperCase()){
+			
+			case "MYSQL" : return Language.MYSQL;
+			
+			case "HSQL" : return Language.HSQL;
+			
+			case "ORACLE" : return Language.ORACLE;
+		
+			default : return Language.MYSQL;
+		}
+		
+	}
 
 
 }

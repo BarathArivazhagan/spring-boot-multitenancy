@@ -44,8 +44,8 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 		
 		
 		if(logger.isInfoEnabled()){
-			logger.info("TENANT ID {} ",tenantIdentifier);
-			logger.info("GET CONNECTION {} ",tenantIdentifier);
+			logger.info("CONNECTION TENANT ID {} ",tenantIdentifier);
+			
 		}
         final Connection connection = getAnyConnection();
         try {
@@ -63,7 +63,6 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 	@Override
 	public void releaseAnyConnection(Connection connection) throws SQLException {
 		
-		System.out.println("RELEASE ANY  CONNECTION  ");
 		connection.close();
 		
 	}
@@ -72,7 +71,6 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 	public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
 		  
 		
-		System.out.println("RELEASE   CONNECTION  ");
 		connection.close();
 		
 	}

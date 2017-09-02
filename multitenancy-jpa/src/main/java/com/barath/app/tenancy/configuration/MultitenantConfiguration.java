@@ -166,6 +166,9 @@ public class MultitenantConfiguration {
 	 		case "postgresql" : dbType=Database.POSTGRESQL;break;
  		
  		}
+ 		if(logger.isInfoEnabled()){
+ 			logger.info("DATABASE TYPE {} and its CONFIGURED Database enum {}",databaseType,dbType);
+ 		}
  		
  		return dbType;
  	}

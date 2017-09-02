@@ -1,0 +1,15 @@
+
+
+multitenancy:
+  type: schema
+  default-tenant: tenant_a
+
+entity:
+  packages: com.barath.app.test.entity
+
+spring:
+  jpa:
+    database: hsql
+    show-sql: true
+    hibernate:
+      ddl-auto: none
