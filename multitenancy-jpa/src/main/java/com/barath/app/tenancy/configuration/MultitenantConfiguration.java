@@ -39,7 +39,7 @@ import com.barath.app.tenancy.strategy.TenantIdentificationStrategy;
 
 @Configuration
 @ConditionalOnProperty(value="multitenancy.enabled",matchIfMissing=true,havingValue="true")
-@ComponentScan("com.accenture.magellan.tenancy")
+@ComponentScan("com.barath.app.tenancy")
 @AutoConfigureAfter(value=HibernateJpaAutoConfiguration.class)
 public class MultitenantConfiguration {
 	
@@ -85,7 +85,7 @@ public class MultitenantConfiguration {
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="spring.multitenancy.type",matchIfMissing=true,havingValue="schema")
+	@ConditionalOnProperty(value="multitenancy.type",matchIfMissing=true,havingValue="schema")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
 	public MultiTenantConnectionProvider schemaMultitenantProvider(){
 		
@@ -98,7 +98,7 @@ public class MultitenantConfiguration {
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="spring.multitenancy.type",havingValue="database")
+	@ConditionalOnProperty(value="multitenancy.type",havingValue="database")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
 	public MultiTenantConnectionProvider databaseMultitenantProvider(){		
 
