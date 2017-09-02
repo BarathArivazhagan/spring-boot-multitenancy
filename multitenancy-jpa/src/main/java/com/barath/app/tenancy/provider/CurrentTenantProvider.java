@@ -10,7 +10,6 @@ import com.barath.app.tenancy.context.TenancyContextHolder;
  * 
  * An implementation of {@link CurrentTenantIdentifierResolver} to resolve the current tenant identifier.
  * 
- * @author Clint Morgan
  * @author barath.arivazhagan
  *
  */
@@ -19,12 +18,11 @@ public class CurrentTenantProvider implements CurrentTenantIdentifierResolver {
 	
 	private static final Logger logger=LoggerFactory.getLogger(CurrentTenantProvider.class);
 	
-	
-	
 
 	@Override
 	public String resolveCurrentTenantIdentifier() {
 		
+		System.out.println("RESOLVE TENANT IDENTIFIER ");
 		String tenantId = TenancyContextHolder.getContext().getTenant().getIdentity();
         if (tenantId != null) {
             return tenantId;
@@ -42,5 +40,7 @@ public class CurrentTenantProvider implements CurrentTenantIdentifierResolver {
 		
 		return true;
 	}
+	
+	
 
 }

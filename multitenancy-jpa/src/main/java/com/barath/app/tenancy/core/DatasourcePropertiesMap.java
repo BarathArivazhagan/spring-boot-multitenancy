@@ -9,10 +9,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-
 @ConditionalOnProperty(value="multitenancy.type",havingValue="database")
 @Configuration
-@ConfigurationProperties(ignoreUnknownFields=true)
+@ConfigurationProperties(ignoreUnknownFields=true,prefix="multitenancy.datasources")
 public class DatasourcePropertiesMap {
 	
 	private Map<String, DataSourceProperties> dataSourceProperties;

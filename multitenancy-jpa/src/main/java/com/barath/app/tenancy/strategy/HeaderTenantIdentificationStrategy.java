@@ -18,8 +18,6 @@ public class HeaderTenantIdentificationStrategy implements TenantIdentificationS
 	public String identifyTenant(HttpServletRequest request) {
 		return request.getHeader(headerName);
 	}
-	
-	
 
 	public void setHeaderName(String headerName) {
 		this.headerName = headerName;

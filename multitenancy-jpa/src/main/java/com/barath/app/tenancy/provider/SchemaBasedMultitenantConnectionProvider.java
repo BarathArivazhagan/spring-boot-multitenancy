@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
+import com.barath.app.tenancy.context.TenancyContextHolder;
 
 /**
  * Default implementation of MultiTenantConnectionProvider see {@link MultiTenantConnectionProvider}.
@@ -29,19 +29,21 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 	@Autowired
     private DataSource dataSource;
 	
-	private DatabaseMetaData metadata;
+	private String databaseName;
 
 	
 
 	@Override
 	public Connection getAnyConnection() throws SQLException {
-		metadata=dataSource.getConnection().getMetaData();
+		System.out.println("ANY CONNECTION  ");
 		return dataSource.getConnection();
 	}
 
 	@Override
 	public Connection getConnection(String tenantIdentifier) throws SQLException {		
 		
+		
+		System.out.println("GET CONNECTION  "+tenantIdentifier);
 		if(logger.isInfoEnabled()){
 			logger.info("TENANT ID {} ",tenantIdentifier);
 		}
@@ -60,46 +62,34 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 
 	@Override
 	public void releaseAnyConnection(Connection connection) throws SQLException {
+		
+		System.out.println("RELEASE ANY  CONNECTION  ");
 		connection.close();
 		
 	}
 
 	@Override
 	public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
-		  connection.close();
+		  
+		
+		System.out.println("RELEASE   CONNECTION  ");
+		connection.close();
 		
 	}
 
 	@Override
 	public boolean supportsAggressiveRelease() {
-		
-		return false;
+		if(logger.isInfoEnabled()){
+			logger.info("Supports Aggressive release");
+		}
+		return true;
 	}
 
-	@Override
-	protected String getDatabaseName() {
-		
-		try {		
-			if( metadata ==null){
-				getAnyConnection();
-			}
-			return metadata.getDatabaseProductName();
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 	
 	@Override
 	public boolean isUnwrappableAs(Class arg0) {
 		
-		try {
-			return !dataSource.isWrapperFor(arg0);
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
 		return false;
 	}
 
@@ -114,6 +104,19 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 		}
 		return null;
 	}
+
+	public void setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
+	}
+	
+	@Override
+	public String getDatabaseName() {
+		return databaseName;
+	}
+	
+	
+	
+	
 	
 	
 

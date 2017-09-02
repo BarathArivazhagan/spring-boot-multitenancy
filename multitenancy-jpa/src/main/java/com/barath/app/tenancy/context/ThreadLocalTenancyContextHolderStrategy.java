@@ -4,8 +4,8 @@ package com.barath.app.tenancy.context;
 
 import org.springframework.util.Assert;
 
-import com.barath.app.tenancy.context.TenancyContext;
 import com.barath.app.tenancy.core.Tenant;
+import com.barath.app.tenancy.provider.DefaultTenant;
 
 /**
  * A <code>ThreadLocal</code>-based implementation of {@link TenancyContextHolderStrategy}.
@@ -17,7 +17,9 @@ import com.barath.app.tenancy.core.Tenant;
  */
 public class ThreadLocalTenancyContextHolderStrategy implements TenancyContextHolderStrategy {
 	private static final ThreadLocal<TenancyContext> contextHolder = new ThreadLocal<TenancyContext>();
-	private static final String DEFAULT_TENANT_ID="testdb";
+	
+	
+	private String tenantIdentifier;
 
 	public void clearContext() {
 		contextHolder.set(null);
@@ -30,7 +32,9 @@ public class ThreadLocalTenancyContextHolderStrategy implements TenancyContextHo
 			ctx = createEmptyContext();			
 		}
 		if(ctx.getTenant() == null){
-			ctx = createEmptyContext();		
+			DefaultTenant tenant=new DefaultTenant();
+			tenant.setTenantIdentifier(getTenantIdentifier());
+			ctx.setTenant(tenant); 
 		}
 		contextHolder.set(ctx);
 		return ctx;
@@ -42,14 +46,22 @@ public class ThreadLocalTenancyContextHolderStrategy implements TenancyContextHo
 	}
 
 	public TenancyContext createEmptyContext() {
-		DefaultTenancyContext context= new DefaultTenancyContext();
-		context.setTenant(new Tenant() {
-			
-			@Override
-			public String getIdentity() {
-				return DEFAULT_TENANT_ID;
-			}
-		});
-		return context;
+		 return new DefaultTenancyContext();
+		
 	}
+	
+	public void setDefaultIdentifier(String tenantIdentifier){
+		setTenantIdentifier(tenantIdentifier);
+		
+	}
+
+	public String getTenantIdentifier() {
+		return tenantIdentifier;
+	}
+
+	public void setTenantIdentifier(String tenantIdentifier) {
+		this.tenantIdentifier = tenantIdentifier;
+	}
+	
+	
 }

@@ -14,13 +14,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Component;
 
-
-/**
- * 
- * @author barath.arivazhagan
- *
- */
-
 @ConditionalOnProperty(value="multitenancy.type",havingValue="database")
 @Component
 public class DatasourceMap {

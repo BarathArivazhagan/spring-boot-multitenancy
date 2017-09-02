@@ -28,6 +28,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import com.barath.app.tenancy.constant.TenantConstant;
+import com.barath.app.tenancy.context.TenancyContextHolder;
 import com.barath.app.tenancy.interceptor.TenancyContextIntegrationFilter;
 import com.barath.app.tenancy.provider.CurrentTenantProvider;
 import com.barath.app.tenancy.provider.DatabaseBasedMultitenantConnectionProvider;
@@ -37,7 +39,7 @@ import com.barath.app.tenancy.strategy.TenantIdentificationStrategy;
 
 @Configuration
 @ConditionalOnProperty(value="multitenancy.enabled",matchIfMissing=true,havingValue="true")
-@ComponentScan("com.barath.app.tenancy")
+@ComponentScan("com.accenture.magellan.tenancy")
 @AutoConfigureAfter(value=HibernateJpaAutoConfiguration.class)
 public class MultitenantConfiguration {
 	
@@ -48,13 +50,13 @@ public class MultitenantConfiguration {
 	@Value("${spring.jpa.database:mysql}")
 	private String databaseType;
 	
-	@Value("${entity.packages:com.barath.app}")
+	@Value("${entity.packages:com.accn.ppes.magellan.entity}")
 	private String packagesToScan;
 	
 	@Value("${multitenancy.type:schema}")
 	private String tenantType;
 	
-	@Value("${multitenancy.default-tenant:tenant_a}")
+	@Value("${multitenancy.default-tenant:microservices}")
 	private String defaultTenant;
 	
 	
@@ -68,9 +70,11 @@ public class MultitenantConfiguration {
 	
 	@Bean
 	public TenancyContextIntegrationFilter tenantFilter(TenantIdentificationStrategy strategy){
+		
 		TenancyContextIntegrationFilter filter= new TenancyContextIntegrationFilter();
 		filter.setTenantIdentificationStrategyChain(Arrays.asList(strategy) );
 		filter.setDefaultTenantIdentifier(defaultTenant);
+		TenancyContextHolder.setDefaultIdentifier(defaultTenant);
 		return filter;
 	}
 	
@@ -81,16 +85,26 @@ public class MultitenantConfiguration {
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="multitenancy.type",matchIfMissing=true,havingValue="schema")
+	@ConditionalOnProperty(value="spring.multitenancy.type",matchIfMissing=true,havingValue="schema")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
 	public MultiTenantConnectionProvider schemaMultitenantProvider(){
-		return new SchemaBasedMultitenantConnectionProvider();
+		
+		if(logger.isInfoEnabled()){
+			logger.info(TenantConstant.LOG_HEADER+"{} configured multi tenant provider",tenantType);
+		}
+		SchemaBasedMultitenantConnectionProvider schemaMultitenantProvider= new SchemaBasedMultitenantConnectionProvider();
+		schemaMultitenantProvider.setDatabaseName(databaseType);
+		return schemaMultitenantProvider;
 	}
 	
 	@Bean
-	@ConditionalOnProperty(value="multitenancy.type",havingValue="schema")
+	@ConditionalOnProperty(value="spring.multitenancy.type",havingValue="database")
 	@ConditionalOnMissingBean(value=MultiTenantConnectionProvider.class)
-	public MultiTenantConnectionProvider databaseMultitenantProvider(){
+	public MultiTenantConnectionProvider databaseMultitenantProvider(){		
+
+		if(logger.isInfoEnabled()){
+			logger.info(TenantConstant.LOG_HEADER+"{} configured multi tenant provider",tenantType);
+		}
 		return new DatabaseBasedMultitenantConnectionProvider();
 	}
 	
@@ -107,6 +121,7 @@ public class MultitenantConfiguration {
         properties.put(Environment.MULTI_TENANT,getMultiTenancyStrategy(tenantType));
         properties.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantProvider);
         properties.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, currentTenantResolver);
+        properties.putAll(getConnectionPoolProps());
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
         em.setPackagesToScan(packagesToScan);
@@ -123,9 +138,20 @@ public class MultitenantConfiguration {
  		
  		HibernateJpaVendorAdapter jpaVendorAdapter= new HibernateJpaVendorAdapter();        
 		jpaVendorAdapter.setShowSql(true);
+		
 		jpaVendorAdapter.setDatabase(getDatabaseType(databaseType));
 		return jpaVendorAdapter;
     }
+ 	
+ 	private Map<String,String> getConnectionPoolProps(){
+ 	
+ 		Map<String,String> poolProperties=new HashMap<>();
+ 		poolProperties.put("hibernate.c3p0.min_size", "5");
+ 		poolProperties.put("hibernate.c3p0.max_size", "10");
+ 		poolProperties.put("hibernate.c3p0.max_statements", "50");
+ 		poolProperties.put("hibernate.c3p0.timeout", "0"); 		
+ 		return poolProperties;
+ 	}
  	
  	private Database getDatabaseType(String databaseType){
  		

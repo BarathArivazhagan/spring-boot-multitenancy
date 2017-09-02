@@ -36,5 +36,12 @@ public interface TenancyContextHolderStrategy {
 	 * @return the empty context.
 	 */
 	TenancyContext createEmptyContext();
+	
+	/**
+	 * To set the default identifier to the default context
+	 * 
+	 * @param tenantIdentifier
+	 */
+	void setDefaultIdentifier(String tenantIdentifier);
 
 }

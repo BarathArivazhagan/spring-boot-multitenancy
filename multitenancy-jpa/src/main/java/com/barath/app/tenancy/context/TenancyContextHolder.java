@@ -19,6 +19,7 @@ public class TenancyContextHolder {
 
 	private static TenancyContextHolderStrategy strategy = new ThreadLocalTenancyContextHolderStrategy();
 
+	
 	/**
 	 * Explicitly clear the tenacy context.
 	 * 
@@ -74,6 +75,16 @@ public class TenancyContextHolder {
 			throw new IllegalArgumentException();
 		}
 		TenancyContextHolder.strategy = strategy;
+	}
+	
+	/**
+	 * Set the default identifier
+	 * 
+	 * @param tenantIdentifier
+	 * 
+	 */
+	public static void setDefaultIdentifier(String tenantIdentifier){
+		strategy.setDefaultIdentifier(tenantIdentifier);
 	}
 
 }
