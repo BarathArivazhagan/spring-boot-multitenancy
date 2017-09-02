@@ -22,11 +22,9 @@ public class CurrentTenantProvider implements CurrentTenantIdentifierResolver {
 	@Override
 	public String resolveCurrentTenantIdentifier() {
 		
-		System.out.println("RESOLVE TENANT IDENTIFIER ");
+		
 		String tenantId = TenancyContextHolder.getContext().getTenant().getIdentity();
-        if (tenantId != null) {
-            return tenantId;
-        }else{
+        if (tenantId == null) {          
         	tenantId=TenancyContextHolder.getStrategy().createEmptyContext().getTenant().getIdentity();
         }       
         if(logger.isInfoEnabled()){

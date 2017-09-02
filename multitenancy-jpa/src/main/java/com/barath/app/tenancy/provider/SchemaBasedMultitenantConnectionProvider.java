@@ -35,7 +35,6 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 
 	@Override
 	public Connection getAnyConnection() throws SQLException {
-		System.out.println("ANY CONNECTION  ");
 		return dataSource.getConnection();
 	}
 
@@ -43,9 +42,10 @@ public class SchemaBasedMultitenantConnectionProvider extends AbstractDatabaseSw
 	public Connection getConnection(String tenantIdentifier) throws SQLException {		
 		
 		
-		System.out.println("GET CONNECTION  "+tenantIdentifier);
+		
 		if(logger.isInfoEnabled()){
 			logger.info("TENANT ID {} ",tenantIdentifier);
+			logger.info("GET CONNECTION {} ",tenantIdentifier);
 		}
         final Connection connection = getAnyConnection();
         try {
