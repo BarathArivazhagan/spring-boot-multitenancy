@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.barath.app.test.entity.Customer;
+import com.barath.app.test.exception.CustomerAlreadyExistsException;
+import com.barath.app.test.exception.CustomerNotFoundException;
 import com.barath.app.test.repository.CustomerRepository;
 
 @Service
@@ -24,10 +26,15 @@ public class CustomerService {
 	
 	
 	public Customer saveCustomer(Customer customer){
+		
 		if(logger.isInfoEnabled()){
 			logger.info("Saving the customer with customer details {}",customer.toString());
 		}
-		return 	this.customerRepo.save(customer);
+		if(isCustomerExists(customer)){
+			throw new CustomerAlreadyExistsException("Customer Already Exists with Name");
+		 	
+		}		
+		return this.customerRepo.save(customer);
 		
 	}
 	
@@ -35,7 +42,13 @@ public class CustomerService {
 		if(logger.isInfoEnabled()){
 			logger.info("Getting the customer with customer name {}",customerName);
 		}
-		return 	this.customerRepo.findByCustomerName(customerName);
+		Customer customer=this.customerRepo.findByCustomerName(customerName);
+		
+		if(customer ==null){
+			throw new CustomerNotFoundException("Customer with customer name "+customerName+" not found");
+		}
+		
+		return customer;
 		
 	}
 	
@@ -45,6 +58,11 @@ public class CustomerService {
 		}
 		return 	this.customerRepo.findAll();
 		
+	}
+	
+	public boolean isCustomerExists(Customer customer){
+		
+		return this.customerRepo.findByCustomerName(customer.getCustomerName()) !=null ? true:  false;
 	}
 
 }

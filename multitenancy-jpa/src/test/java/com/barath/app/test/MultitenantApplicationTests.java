@@ -3,32 +3,27 @@ package com.barath.app.test;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.barath.app.tenancy.context.TenancyContextHolder;
 import com.barath.app.tenancy.provider.DefaultTenant;
 import com.barath.app.test.entity.Customer;
+import com.barath.app.test.exception.CustomerAlreadyExistsException;
+import com.barath.app.test.exception.CustomerNotFoundException;
 import com.barath.app.test.repository.CustomerRepository;
 import com.barath.app.test.service.CustomerService;
 
-@RunWith(SpringRunner.class)
-@ActiveProfiles("test")
-@SpringBootTest(classes=TestApplication.class,webEnvironment=WebEnvironment.RANDOM_PORT)
-public class MultitenantApplicationTests {
+
+public class MultitenantApplicationTests extends AbstractSpringRunner{	
 	
-	private static final Logger logger=LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private static final String TENANT_A="tenant_a";
 	private static final String TENANT_B="tenant_b";
@@ -37,7 +32,7 @@ public class MultitenantApplicationTests {
 	private CustomerService customerService;
 	
 	@Test
-	public void saveCustomerTestWithTenantA() {
+	public void saveCustomerWithTenantA() {
 		
 		setTenantContext(TENANT_A);
 		Customer customer=customerService.saveCustomer(new Customer(4L,"DHONI"));
@@ -48,7 +43,7 @@ public class MultitenantApplicationTests {
 	
 	
 	@Test
-	public void saveCustomerTestWithTenantB() {
+	public void saveCustomerWithTenantB() {
 		
 		setTenantContext(TENANT_B);
 		Customer customer=customerService.saveCustomer(new Customer(4L,"SMITH"));
@@ -75,16 +70,45 @@ public class MultitenantApplicationTests {
 	}
 	
 	
-	  protected void setTenantContext(String tenantIdentifier){
-		  
-		  if(logger.isInfoEnabled()){
-			  logger.info("setting the tenant to {} ", tenantIdentifier);
-		  }
-		  DefaultTenant tenant=new DefaultTenant();
-		  tenant.setTenantIdentifier(tenantIdentifier);
-		  TenancyContextHolder.getContext().setTenant(tenant);
-		  
-	  }
+
+	@Test
+	public void getAllCustomersFromTenantA(){
+		
+		setTenantContext(TENANT_A);
+		List<Customer> customers=customerService.getCustomers();
+		List<String> expectedCustomers=Arrays.asList("RAMESH","SURESH","MAHESH");
+		assertEquals(expectedCustomers, customers.stream().map(Customer::getCustomerName).limit(3).collect(Collectors.toList()));
+	}
+	
+	
+	@Test
+	public void getAllCustomersFromTenantB(){
+		
+		setTenantContext(TENANT_B);
+		List<Customer> customers=customerService.getCustomers();
+		List<String> expectedCustomers=Arrays.asList("BILL","HAYDEN","STEVE");
+		assertEquals(expectedCustomers, customers.stream().map(Customer::getCustomerName).limit(3).collect(Collectors.toList()));
+	}
+	
+	
+	@Test(expected=CustomerAlreadyExistsException.class)
+	public void saveExistingCustomerWithTenantA(){
+		
+		setTenantContext(TENANT_A);
+		Customer customer=new Customer(5L, "KOHLI");
+		customer=customerService.saveCustomer(customer);
+		customerService.saveCustomer(customer);
+	}
+	
+
+	@Test(expected=CustomerNotFoundException.class)
+	public void expectCustomerNotFoundException(){
+		
+		setTenantContext(TENANT_A);
+		customerService.getCustomer("INDIA");
+	}
+	
+	
 	
 	
 	
