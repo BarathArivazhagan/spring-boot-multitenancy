@@ -1,7 +1,5 @@
 package com.barath.app.tenancy.provider;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
